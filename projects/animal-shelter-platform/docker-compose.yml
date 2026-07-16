@@ -1,0 +1,59 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio_animal_shelter_app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://animal_shelter:animal_shelter_password@mysql:3306/animal_shelter
+      SHADOW_DATABASE_URL: mysql://root:root_password@mysql:3306/prisma_shadow
+      AUTH_SECRET: local-demo-session-secret-change-outside-demo
+      NEXT_PUBLIC_SITE_URL: http://localhost:3100
+      SITE_URL: http://localhost:3100
+      LIQPAY_PUBLIC_KEY: ""
+      LIQPAY_PRIVATE_KEY: ""
+      LIQPAY_SANDBOX: "true"
+      MONOBANK_TOKEN: ""
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "3100:3000"
+    volumes:
+      - demo_uploads:/app/public/uploads
+
+  mysql:
+    image: mysql:8.4
+    container_name: portfolio_animal_shelter_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: animal_shelter
+      MYSQL_USER: animal_shelter
+      MYSQL_PASSWORD: animal_shelter_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3317:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  adminer:
+    image: adminer:4
+    container_name: portfolio_animal_shelter_adminer
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8180:8080"
+
+volumes:
+  demo_uploads:
+  mysql_data:

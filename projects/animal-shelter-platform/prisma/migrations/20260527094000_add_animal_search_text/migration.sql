@@ -1,0 +1,1 @@
+ALTER TABLE `Animal` ADD COLUMN `searchText` LONGTEXT NULL;

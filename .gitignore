@@ -1,0 +1,16 @@
+# Local CV planning and drafts.
+/docs/
+/drafts/
+
+# Project-local environment and dependency files.
+/projects/**/.env
+/projects/**/.env.*
+!/projects/**/.env.example
+/projects/**/node_modules/
+
+# OS and editor files.
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

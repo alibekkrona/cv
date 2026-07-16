@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --shelter-background:
+    linear-gradient(90deg, transparent 0%, transparent 66%, rgb(0 0 0 / 0.42) 88%, rgb(0 0 0 / 0.68) 100%),
+    radial-gradient(ellipse at 36% -12%, rgb(90 69 50 / 0.62), transparent 40rem),
+    radial-gradient(ellipse at 0% 24%, rgb(76 74 70 / 0.48), transparent 48rem),
+    linear-gradient(180deg, #2e2c2a 0%, #1a1817 100%);
+  --shelter-ink: 241 241 241;
+  --shelter-moss: 62 166 255;
+  --shelter-leaf: 63 63 63;
+  --shelter-cream: 15 15 15;
+  --shelter-clay: 255 0 51;
+  --shelter-surface: 33 33 33;
+  --shelter-input: 18 18 18;
+  --shelter-border: 255 255 255;
+  --shelter-border-alpha: 0.14;
+  color-scheme: dark;
+}
+
+html[data-theme="white"] {
+  --shelter-background:
+    radial-gradient(ellipse at 20% -10%, rgb(226 232 240 / 0.72), transparent 36rem),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  --shelter-ink: 31 41 55;
+  --shelter-moss: 37 99 235;
+  --shelter-leaf: 226 232 240;
+  --shelter-cream: 248 250 252;
+  --shelter-clay: 225 29 72;
+  --shelter-surface: 255 255 255;
+  --shelter-input: 255 255 255;
+  --shelter-border: 31 41 55;
+  --shelter-border-alpha: 0.14;
+  color-scheme: light;
+}
+
+html[data-theme="gray"] {
+  --shelter-background:
+    radial-gradient(ellipse at 22% -12%, rgb(209 213 219 / 0.78), transparent 36rem),
+    radial-gradient(ellipse at 100% 12%, rgb(148 163 184 / 0.24), transparent 34rem),
+    linear-gradient(180deg, #e5e7eb 0%, #d1d5db 100%);
+  --shelter-ink: 31 41 55;
+  --shelter-moss: 59 130 246;
+  --shelter-leaf: 203 213 225;
+  --shelter-cream: 229 231 235;
+  --shelter-clay: 217 70 106;
+  --shelter-surface: 249 250 251;
+  --shelter-input: 255 255 255;
+  --shelter-border: 31 41 55;
+  --shelter-border-alpha: 0.16;
+  color-scheme: light;
+}
+
+html[data-theme="cream"] {
+  --shelter-background:
+    radial-gradient(ellipse at 30% -12%, rgb(244 190 143 / 0.34), transparent 36rem),
+    radial-gradient(ellipse at 0% 22%, rgb(135 106 73 / 0.18), transparent 44rem),
+    linear-gradient(180deg, #f4eadf 0%, #e9dac8 100%);
+  --shelter-ink: 51 40 32;
+  --shelter-moss: 63 122 77;
+  --shelter-leaf: 213 230 199;
+  --shelter-cream: 244 234 223;
+  --shelter-clay: 198 90 66;
+  --shelter-surface: 255 250 243;
+  --shelter-input: 255 250 243;
+  --shelter-border: 51 40 32;
+  --shelter-border-alpha: 0.15;
+  color-scheme: light;
+}
+
+html[data-theme="midnight"] {
+  --shelter-background:
+    radial-gradient(ellipse at 34% -14%, rgb(30 64 175 / 0.45), transparent 40rem),
+    radial-gradient(ellipse at 0% 30%, rgb(14 165 233 / 0.18), transparent 44rem),
+    linear-gradient(180deg, #07111f 0%, #040913 100%);
+  --shelter-ink: 238 245 255;
+  --shelter-moss: 96 165 250;
+  --shelter-leaf: 29 78 216;
+  --shelter-cream: 7 17 31;
+  --shelter-clay: 245 158 11;
+  --shelter-surface: 16 27 45;
+  --shelter-input: 8 18 32;
+  --shelter-border: 238 245 255;
+  --shelter-border-alpha: 0.15;
+  color-scheme: dark;
+}
+
+html[data-theme="forest"] {
+  --shelter-background:
+    radial-gradient(ellipse at 28% -10%, rgb(125 223 139 / 0.28), transparent 38rem),
+    radial-gradient(ellipse at 0% 26%, rgb(83 121 91 / 0.22), transparent 46rem),
+    linear-gradient(180deg, #111a14 0%, #080f0a 100%);
+  --shelter-ink: 243 247 239;
+  --shelter-moss: 125 223 139;
+  --shelter-leaf: 47 70 52;
+  --shelter-cream: 17 26 20;
+  --shelter-clay: 239 111 108;
+  --shelter-surface: 28 38 31;
+  --shelter-input: 17 26 20;
+  --shelter-border: 243 247 239;
+  --shelter-border-alpha: 0.14;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--shelter-background);
+  color: rgb(var(--shelter-ink));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bg-white {
+  background-color: rgb(var(--shelter-surface));
+}
+
+.bg-\[\#121212\],
+.bg-\[\#212121\] {
+  background-color: rgb(var(--shelter-input));
+}
+
+.border-shelter-ink\/10,
+.border-shelter-ink\/15,
+.border-shelter-ink\/20 {
+  border-color: rgb(var(--shelter-border) / var(--shelter-border-alpha));
+}
+
+input,
+select,
+textarea {
+  background-color: rgb(var(--shelter-input));
+  color: rgb(var(--shelter-ink));
+}
+
+button.bg-shelter-moss:not(:disabled):hover,
+a.bg-shelter-moss:hover {
+  background-color: color-mix(in srgb, rgb(var(--shelter-moss)) 86%, black);
+}

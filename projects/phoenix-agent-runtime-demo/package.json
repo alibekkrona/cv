@@ -1,0 +1,16 @@
+{
+  "name": "phoenix-agent-runtime-reference",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Public architecture snapshot and runnable reference for a tool-governed local LLM agent runtime.",
+  "main": "examples/reference/demo.mjs",
+  "scripts": {
+    "demo": "node examples/reference/demo.mjs",
+    "test": "node --test examples/reference/tests/*.test.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "openai": "^6.0.1"
+  }
+}

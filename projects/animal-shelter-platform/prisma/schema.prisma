@@ -1,0 +1,774 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Animal {
+  id              Int          @id @default(autoincrement())
+  slug            String       @unique
+  name            String
+  species         Species
+  sex             Sex          @default(UNKNOWN)
+  ageMonths       Int?
+  ageText         String?
+  size            AnimalSize?
+  breed           String?
+  color           String?
+  coat            String?
+  healthStatus    String?      @db.Text
+  sterilized      Boolean      @default(false)
+  vaccinated      Boolean      @default(false)
+  cardNumber      String?
+  aviaryNumber    String?
+  arrivalDate     DateTime?
+  statusDate      DateTime?
+  videoUrl        String?
+  description     String?      @db.Text
+  story           String?      @db.Text
+  searchText      String?      @db.LongText
+  status          AnimalStatus @default(DRAFT)
+  publishedAt     DateTime?
+  createdByUserId Int?
+  updatedByUserId Int?
+
+  goodWithChildren      Boolean?
+  goodWithElderly       Boolean?
+  goodWithAnimals       Boolean?
+  apartmentFriendly     Boolean?
+  needsExperiencedOwner Boolean?
+  needsSpecialCare      Boolean?
+
+  photos       AnimalPhoto[]
+  tags         AnimalTag[]
+  applications AdoptionApplication[]
+  likes        AnimalLike[]
+  comments     AnimalComment[]
+  views        AnimalView[]
+  needs        Need[]
+  donations    Donation[]
+  createdBy    User?                 @relation("AnimalCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy    User?                 @relation("AnimalUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([species])
+  @@index([sex])
+  @@index([status])
+  @@index([size])
+  @@index([publishedAt])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
+  @@index([createdAt])
+}
+
+model AnimalPhoto {
+  id       Int     @id @default(autoincrement())
+  animalId Int
+  url      String
+  alt      String?
+  position Int     @default(0)
+  isCover  Boolean @default(false)
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([animalId])
+}
+
+model Tag {
+  id      Int         @id @default(autoincrement())
+  slug    String      @unique
+  name    String
+  type    TagType
+  animals AnimalTag[]
+}
+
+model AnimalTag {
+  animalId Int
+  tagId    Int
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([animalId, tagId])
+  @@index([tagId])
+}
+
+model AdoptionApplication {
+  id            Int               @id @default(autoincrement())
+  animalId      Int?
+  type          ApplicationType   @default(ADOPTION)
+  applicantName String
+  phone         String
+  email         String?
+  messenger     String?
+  city          String?
+  cityId        Int?
+  housingType   String?
+  hasChildren   Boolean?
+  hasAnimals    Boolean?
+  message       String?           @db.Text
+  adminNote     String?           @db.Text
+  status        ApplicationStatus @default(NEW)
+
+  animal       Animal?                          @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  cityRef      Settlement?                      @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  statusEvents AdoptionApplicationStatusEvent[]
+  comments     AdoptionApplicationComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([animalId])
+  @@index([cityId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         UserRole @default(STAFF)
+  isActive     Boolean  @default(true)
+
+  needStatusChanges       Need[]                           @relation("NeedStatusChangedBy")
+  createdNeeds            Need[]                           @relation("NeedCreatedBy")
+  updatedNeeds            Need[]                           @relation("NeedUpdatedBy")
+  createdNeedAudits       NeedAudit[]                      @relation("NeedAuditCreatedBy")
+  createdAnimals          Animal[]                         @relation("AnimalCreatedBy")
+  updatedAnimals          Animal[]                         @relation("AnimalUpdatedBy")
+  applicationStatusEvents AdoptionApplicationStatusEvent[] @relation("ApplicationStatusChangedBy")
+  createdLostFoundReports LostFoundReport[]                @relation("LostFoundCreatedBy")
+  updatedLostFoundReports LostFoundReport[]                @relation("LostFoundUpdatedBy")
+  auditLogs               AdminAuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ReportDocument {
+  id          Int       @id @default(autoincrement())
+  title       String
+  type        String
+  period      String?
+  fileUrl     String
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([publishedAt])
+}
+
+model ContactSettings {
+  id              Int     @id @default(autoincrement())
+  phone           String?
+  email           String?
+  address         String?
+  schedule        String? @db.Text
+  telegram        String?
+  facebook        String?
+  officialSiteUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DesignSettings {
+  id          Int    @id @default(autoincrement())
+  activeTheme String @default("youtube")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DonationSettings {
+  id                    Int     @id @default(autoincrement())
+  publicDonationsEnabled Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShelterVisitHour {
+  id        Int     @id @default(autoincrement())
+  dayOfWeek Int
+  opensAt   String
+  closesAt  String
+  isEnabled Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dayOfWeek])
+}
+
+model ShelterWalkingHour {
+  id        Int     @id @default(autoincrement())
+  dayOfWeek Int
+  opensAt   String
+  closesAt  String
+  isEnabled Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dayOfWeek])
+}
+
+model Region {
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique
+  name        String
+  countryCode String       @default("UA")
+  settlements Settlement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Settlement {
+  id        Int     @id @default(autoincrement())
+  regionId  Int
+  slug      String  @unique
+  name      String
+  type      String  @default("CITY")
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  region           Region                @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  applications     AdoptionApplication[]
+  lostFoundReports LostFoundReport[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([regionId])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model AnimalLike {
+  id         Int    @id @default(autoincrement())
+  animalId   Int
+  visitorKey String
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([animalId, visitorKey])
+  @@index([animalId])
+}
+
+model AnimalView {
+  id         Int    @id @default(autoincrement())
+  animalId   Int
+  visitorKey String
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([animalId, visitorKey])
+  @@index([animalId])
+  @@index([createdAt])
+}
+
+model AnimalComment {
+  id         Int     @id @default(autoincrement())
+  animalId   Int
+  parentId   Int?
+  visitorKey String
+  authorName String
+  body       String  @db.Text
+  isHidden   Boolean @default(false)
+
+  animal  Animal                @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  parent  AnimalComment?        @relation("AnimalCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies AnimalComment[]       @relation("AnimalCommentReplies")
+  reports AnimalCommentReport[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([animalId])
+  @@index([parentId])
+  @@index([visitorKey])
+  @@index([isHidden])
+  @@index([createdAt])
+}
+
+model AnimalCommentReport {
+  id         Int    @id @default(autoincrement())
+  commentId  Int
+  visitorKey String
+
+  comment AnimalComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, visitorKey])
+  @@index([commentId])
+  @@index([createdAt])
+}
+
+model Need {
+  id                    Int        @id @default(autoincrement())
+  slug                  String     @unique
+  scope                 NeedScope  @default(SHELTER)
+  animalId              Int?
+  title                 String
+  description           String     @db.Text
+  targetCents           Int
+  raisedCents           Int        @default(0)
+  status                NeedStatus @default(ACTIVE)
+  statusChangedByUserId Int?
+  statusChangedAt       DateTime?
+  createdByUserId       Int?
+  updatedByUserId       Int?
+  isUrgent              Boolean    @default(false)
+  priority              Int        @default(0)
+  publishedAt           DateTime?
+
+  animal          Animal?     @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  statusChangedBy User?       @relation("NeedStatusChangedBy", fields: [statusChangedByUserId], references: [id], onDelete: SetNull)
+  createdBy       User?       @relation("NeedCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy       User?       @relation("NeedUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  photos          NeedPhoto[]
+  donations       Donation[]
+  audits          NeedAudit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([scope])
+  @@index([animalId])
+  @@index([status])
+  @@index([statusChangedByUserId])
+  @@index([statusChangedAt])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
+  @@index([isUrgent])
+  @@index([publishedAt])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model NeedAudit {
+  id              Int       @id @default(autoincrement())
+  needId          Int
+  createdByUserId Int?
+  title           String
+  description     String    @db.Text
+  publishedAt     DateTime?
+
+  need      Need             @relation(fields: [needId], references: [id], onDelete: Cascade)
+  createdBy User?            @relation("NeedAuditCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  photos    NeedAuditPhoto[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([needId])
+  @@index([createdByUserId])
+  @@index([publishedAt])
+  @@index([createdAt])
+}
+
+model NeedAuditPhoto {
+  id       Int     @id @default(autoincrement())
+  auditId  Int
+  url      String
+  alt      String?
+  position Int     @default(0)
+  isCover  Boolean @default(false)
+
+  audit NeedAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([auditId])
+}
+
+model NeedPhoto {
+  id       Int     @id @default(autoincrement())
+  needId   Int
+  url      String
+  alt      String?
+  position Int     @default(0)
+  isCover  Boolean @default(false)
+
+  need Need @relation(fields: [needId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([needId])
+}
+
+model Donation {
+  id            Int            @id @default(autoincrement())
+  target        DonationTarget @default(SHELTER)
+  needId        Int?
+  animalId      Int?
+  amountCents   Int
+  donorName     String?
+  donorEmail    String?
+  donorPhone    String?
+  message       String?        @db.Text
+  isAnonymous   Boolean        @default(false)
+  method        DonationMethod @default(CARD)
+  status        DonationStatus @default(PLEDGED)
+  publicConsent Boolean        @default(true)
+  adminNote     String?        @db.Text
+
+  need   Need?   @relation(fields: [needId], references: [id], onDelete: SetNull)
+  animal Animal? @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  payments DonationPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([target])
+  @@index([needId])
+  @@index([animalId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DonationPayment {
+  id                Int             @id @default(autoincrement())
+  publicId          String          @unique
+  donationId        Int
+  provider          PaymentProvider
+  status            PaymentStatus   @default(CREATED)
+  amountCents       Int
+  currency          String          @default("UAH")
+  providerPaymentId String?
+  checkoutUrl       String?         @db.Text
+  requestJson       Json?
+  responseJson      Json?
+  rawCallbackJson   Json?
+
+  donation Donation               @relation(fields: [donationId], references: [id], onDelete: Cascade)
+  events   DonationPaymentEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([donationId])
+  @@index([provider])
+  @@index([status])
+  @@index([providerPaymentId])
+  @@index([createdAt])
+}
+
+model DonationPaymentEvent {
+  id        Int           @id @default(autoincrement())
+  paymentId Int
+  status    PaymentStatus
+  payload   Json?
+
+  payment DonationPayment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model LostFoundReport {
+  id              Int             @id @default(autoincrement())
+  slug            String          @unique
+  type            LostFoundType
+  status          LostFoundStatus @default(SUBMITTED)
+  species         Species
+  sex             Sex             @default(UNKNOWN)
+  size            AnimalSize?
+  title           String
+  description     String          @db.Text
+  city            String?
+  cityId          Int?
+  district        String?
+  locationText    String?
+  eventDate       DateTime?
+  contactName     String
+  contactPhone    String
+  contactEmail    String?
+  adminNote       String?         @db.Text
+  publishedAt     DateTime?
+  createdByUserId Int?
+  updatedByUserId Int?
+
+  photos    LostFoundPhoto[]
+  likes     LostFoundLike[]
+  comments  LostFoundComment[]
+  cityRef   Settlement?        @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  createdBy User?              @relation("LostFoundCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy User?              @relation("LostFoundUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([species])
+  @@index([cityId])
+  @@index([publishedAt])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
+  @@index([createdAt])
+}
+
+model AdminAuditLog {
+  id          Int    @id @default(autoincrement())
+  actorUserId Int?
+  action      String
+  entityType  String
+  entityId    Int?
+  beforeJson  Json?
+  afterJson   Json?
+
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+model LostFoundPhoto {
+  id       Int     @id @default(autoincrement())
+  reportId Int
+  url      String
+  alt      String?
+  position Int     @default(0)
+  isCover  Boolean @default(false)
+
+  report LostFoundReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportId])
+}
+
+model LostFoundLike {
+  id         Int    @id @default(autoincrement())
+  reportId   Int
+  visitorKey String
+
+  report LostFoundReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([reportId, visitorKey])
+  @@index([reportId])
+}
+
+model LostFoundComment {
+  id         Int     @id @default(autoincrement())
+  reportId   Int
+  parentId   Int?
+  visitorKey String
+  authorName String?
+  body       String  @db.Text
+  isHidden   Boolean @default(false)
+
+  report  LostFoundReport          @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  parent  LostFoundComment?        @relation("LostFoundCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies LostFoundComment[]       @relation("LostFoundCommentReplies")
+  reports LostFoundCommentReport[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reportId])
+  @@index([parentId])
+  @@index([isHidden])
+  @@index([createdAt])
+}
+
+model LostFoundCommentReport {
+  id         Int    @id @default(autoincrement())
+  commentId  Int
+  visitorKey String
+
+  comment LostFoundComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, visitorKey])
+  @@index([commentId])
+}
+
+enum Species {
+  DOG
+  CAT
+  OTHER
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum AnimalSize {
+  SMALL
+  MEDIUM
+  LARGE
+  UNKNOWN
+}
+
+enum AnimalStatus {
+  DRAFT
+  AVAILABLE
+  RESERVED
+  ADOPTED
+  TREATMENT
+  HIDDEN
+}
+
+enum TagType {
+  CHARACTER
+  COMPATIBILITY
+  CARE
+  HEALTH
+}
+
+enum ApplicationStatus {
+  NEW
+  IN_REVIEW
+  CONTACTED
+  CALL_SCHEDULED
+  VISIT_SCHEDULED
+  APPROVED
+  REJECTED
+  CLOSED
+}
+
+enum ApplicationType {
+  ADOPTION
+  ACQUAINTANCE
+  VISIT
+  WALKING
+  GUARDIANSHIP
+  VOLUNTEERING
+  OTHER
+}
+
+model AdoptionApplicationStatusEvent {
+  id            Int                @id @default(autoincrement())
+  applicationId Int
+  actorUserId   Int?
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  note          String?            @db.Text
+
+  application AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  actor       User?               @relation("ApplicationStatusChangedBy", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([applicationId])
+  @@index([actorUserId])
+  @@index([toStatus])
+  @@index([createdAt])
+}
+
+model AdoptionApplicationComment {
+  id            Int     @id @default(autoincrement())
+  applicationId Int
+  body          String  @db.Text
+  authorName    String?
+
+  application AdoptionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([applicationId])
+  @@index([createdAt])
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+}
+
+enum LostFoundType {
+  LOST
+  FOUND
+}
+
+enum LostFoundStatus {
+  SUBMITTED
+  PUBLISHED
+  MATCHED
+  CLOSED
+  ARCHIVED
+}
+
+enum NeedScope {
+  SHELTER
+  ANIMAL
+}
+
+enum NeedStatus {
+  DRAFT
+  ACTIVE
+  FUNDED
+  FULFILLED
+  PAUSED
+  ANIMAL_ADOPTED
+  ARCHIVED
+}
+
+enum DonationTarget {
+  SHELTER
+  ANIMAL
+  NEED
+}
+
+enum DonationMethod {
+  CARD
+  INVOICE
+}
+
+enum DonationStatus {
+  PLEDGED
+  PAID
+  CANCELLED
+}
+
+enum PaymentProvider {
+  LIQPAY
+  MONOBANK
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}

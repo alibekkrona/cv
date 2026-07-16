@@ -1,0 +1,18 @@
+# Public-safe condensed evidence trace.
+# Values are derived from verified bench results; this is not a full raw vehicle log.
+T+00000 CAN STATE 3C0#FFFF0000 mode=standby source=bench_verified
+T+00700 CAN TX 3C0#0000FFFF mode=run_like source=bench_verified
+T+00720 CAN TX 6C0#0100FF0000000000 mode=backlight_hold source=bench_verified
+T+60000 UDS TX 714#0210030000000000 service=extended_session
+T+60029 UDS RX 77E#065003003201F400 service=extended_session result=accepted
+T+62500 UDS TX 714#0319020900000000 service=read_dtc_by_status
+T+62641 UDS RX 77E#590219EA61000900 service=dtc_list dtc=EA6100 status=09 label=component_protection_active
+T+65000 UDS TX 714#061906EA6100FF00 service=read_dtc_extended_data
+T+65025 UDS RX 77E#5906EA6100090104 service=dtc_extended_data dtc=EA6100 status=09 label=component_protection_active
+T+67500 UDS TX 714#061906903E12FF00 service=read_dtc_extended_data
+T+67530 UDS RX 77E#5906903E12090104 service=dtc_extended_data dtc=903E12 status=09 label=stored_diagnostic_record
+T+70000 UDS TX 714#0322F18700000000 service=read_data_by_identifier did=F187
+T+70031 UDS RX 77E#62F1873448303932 service=read_data_by_identifier did=F187 value=4H0920840F
+T+71000 CAN STATE 3C0#FFFF0000 mode=standby source=bench_verified
+SUMMARY txFail=0 EFLG=0x00 TEC=0 REC=0 neg=0 result=FORENSICS_COMPLETE
+

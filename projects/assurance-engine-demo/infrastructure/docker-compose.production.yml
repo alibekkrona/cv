@@ -1,0 +1,130 @@
+# Production compose for AWS.
+# - MongoDB: remote dedicated server (MONGODB_URI in .env)
+# - VPN: runs in-stack; app shares the VPN network namespace for scraping
+# - Ollama: local strategy advisor; scanner remains available if it is offline
+#
+# Usage:
+#   cp .env.example .env
+#   docker compose -f docker-compose.prod.yml up -d --build
+
+name: lobbyscraper-prod
+
+services:
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.30.8}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  ollama-model:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.30.8}
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-llama3.2:3b}"]
+
+  vpn:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.vpn
+    image: lobbyscraper-vpn:prod
+    restart: unless-stopped
+    working_dir: /app/vpn
+    ports:
+      - "${PORT:-3000}:3000"
+      - "${VPN_API_PORT:-3001}:3001"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      VPN_USER: ${VPN_USER:-}
+      VPN_PASS: ${VPN_PASS:-}
+      VPN_COUNTRY: ${VPN_COUNTRY:-}
+    volumes:
+      - ./vpn/vpn-config:/etc/openvpn/configs:ro
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    command: ["sh", "/app/vpn/start-prod.sh"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('net').createConnection(3001, '127.0.0.1').on('connect', () => process.exit(0)).on('error', () => process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.app
+    image: lobbyscraper-app:prod
+    restart: unless-stopped
+    network_mode: "service:vpn"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./public/casino-logos:/app/public/casino-logos
+      - ./public/casino-screenshots:/app/public/casino-screenshots
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI to your remote MongoDB connection string}
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
+      PORT: 3000
+      VPN_API_URL: http://127.0.0.1:3001
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://openrouter.ai/api/v1}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-openai/gpt-5.4-mini}
+      STRATEGY_ADVISOR_ENABLED: ${STRATEGY_ADVISOR_ENABLED:-true}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-120000}
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-5m}
+      STRATEGY_POLICY_MIN_CONFIDENCE: ${STRATEGY_POLICY_MIN_CONFIDENCE:-0.65}
+      STRATEGY_POLICY_MAX_ATTEMPTS_PER_DECISION: ${STRATEGY_POLICY_MAX_ATTEMPTS_PER_DECISION:-1}
+      STRATEGY_POLICY_MAX_TOTAL_ATTEMPTS: ${STRATEGY_POLICY_MAX_TOTAL_ATTEMPTS:-3}
+      PAGE_SIZE: ${PAGE_SIZE:-25}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+    shm_size: "1gb"
+    init: true
+    command:
+      - node
+      - src/index.js
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:' + (process.env.PORT || 3000), (r) => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  ollama-data:

@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+dist
+coverage
+tsconfig.tsbuildinfo
+.env
+.env.local
+.env.*.local
+storage/uploads/*
+!storage/uploads/.gitkeep
+public/uploads/*
+!public/uploads/.gitkeep
+backups/
+docs/_incoming/

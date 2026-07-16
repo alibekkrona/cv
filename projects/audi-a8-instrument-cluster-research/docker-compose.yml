@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio_audi_j285_app
+    restart: unless-stopped
+    ports:
+      - "3300:8000"
+

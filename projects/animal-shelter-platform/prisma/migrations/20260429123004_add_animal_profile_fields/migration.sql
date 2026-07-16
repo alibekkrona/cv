@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE `Animal` ADD COLUMN `ageText` VARCHAR(191) NULL,
+    ADD COLUMN `arrivalDate` DATETIME(3) NULL,
+    ADD COLUMN `aviaryNumber` VARCHAR(191) NULL,
+    ADD COLUMN `cardNumber` VARCHAR(191) NULL,
+    ADD COLUMN `coat` VARCHAR(191) NULL,
+    ADD COLUMN `statusDate` DATETIME(3) NULL,
+    ADD COLUMN `tokenNumber` VARCHAR(191) NULL,
+    ADD COLUMN `videoUrl` VARCHAR(191) NULL;

@@ -1,0 +1,87 @@
+name: lobbyscraper
+services:
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.30.8}
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  ollama-model:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.30.8}
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-llama3.2:3b}"]
+
+  app:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile.app
+    network_mode: "service:vpn-app"
+    volumes:
+      - ../:/app
+      - /app/node_modules
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/lobbyscraper
+      - STRATEGY_ADVISOR_ENABLED=${STRATEGY_ADVISOR_ENABLED:-true}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
+      - OLLAMA_TIMEOUT_MS=${OLLAMA_TIMEOUT_MS:-120000}
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-5m}
+      - STRATEGY_POLICY_MIN_CONFIDENCE=${STRATEGY_POLICY_MIN_CONFIDENCE:-0.65}
+      - STRATEGY_POLICY_MAX_ATTEMPTS_PER_DECISION=${STRATEGY_POLICY_MAX_ATTEMPTS_PER_DECISION:-1}
+      - STRATEGY_POLICY_MAX_TOTAL_ATTEMPTS=${STRATEGY_POLICY_MAX_TOTAL_ATTEMPTS:-3}
+    depends_on:
+      - mongodb
+      - vpn-app
+    command: nodemon --watch . src/index.js
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  vpn-app:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile.vpn
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    working_dir: /app/vpn
+    command: ["bash", "/app/vpn/start-prod.sh"]
+    volumes:
+      - ../:/app
+      - ../vpn/vpn-config:/etc/openvpn/configs
+      - /app/node_modules
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/lobbyscraper
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - mongodb
+volumes:
+  mongo-data:
+  ollama-data:

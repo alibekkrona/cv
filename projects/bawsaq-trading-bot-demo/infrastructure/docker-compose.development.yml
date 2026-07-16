@@ -1,0 +1,36 @@
+name: bawsaq-bot
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3100:3000"
+    expose:
+      - "3000"
+    env_file:
+      - ../.env
+    depends_on:
+      - mongodb
+    volumes:
+      - ../:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: bawsaq_bot
+    ports:
+      - "27019:27017"
+    expose:
+      - "27017"
+    volumes:
+      - mongodb-data:/data/db
+
+volumes:
+  mongodb-data:
