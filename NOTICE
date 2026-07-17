@@ -1,0 +1,26 @@
+AUTHORSHIP AND CANONICAL SOURCE NOTICE
+
+Copyright (c) 2026 Arsen Abduraimov. All rights reserved.
+
+Author: Arsen Abduraimov
+Canonical repository: https://github.com/alibekkrona/cv
+Contact: alibek.krona@gmail.com
+
+This repository is an engineering portfolio containing independently prepared
+case studies, public-safe demonstrations, documentation, selected source
+examples, screenshots, and CV materials.
+
+The canonical repository above is the authoritative public source of this
+portfolio. A clone, fork, mirror, archive, adaptation, or copied fragment does
+not transfer authorship or ownership and must not be presented as another
+person's work.
+
+The public demonstrations are intentionally bounded. They do not represent or
+publish every private implementation, operational artifact, source dataset, or
+development-history record used to establish the author's experience.
+
+Industry concepts, general architectural patterns, third-party software,
+dependencies, trademarks, and public datasets remain the property of their
+respective owners and are not claimed as exclusive property by this notice.
+
+Use of original repository material is governed by the root LICENSE file.
