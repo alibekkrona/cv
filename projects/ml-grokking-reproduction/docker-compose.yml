@@ -1,0 +1,24 @@
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m pytest -q
+
+  experiment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - python
+      - -m
+      - grokking_reproduction
+      - train
+      - --operation
+      - multiplication
+      - --steps
+      - "100000"
+      - --eval-every
+      - "100"
+    volumes:
+      - ./artifacts:/app/artifacts

@@ -5,6 +5,11 @@ projects used to support the CV.
 
 Available presentation projects:
 
+- [`ml-grokking-reproduction/`](./ml-grokking-reproduction/) - standalone
+  PyTorch reproduction of OpenAI's modular-arithmetic grokking experiment,
+  extended from addition to multiplication modulo 97 with a controlled
+  9,409-pair dataset, deterministic held-out split, Docker execution, automated
+  verification, and 100% exact accuracy on 4,705 unseen operand pairs.
 - [`assurance-engine-demo/`](./assurance-engine-demo/) - public-safe
   architecture snapshot of the real Node.js browser-automation platform,
   including production-like VPN/Ollama infrastructure, evidence milestones,

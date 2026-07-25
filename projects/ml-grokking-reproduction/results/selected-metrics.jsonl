@@ -1,0 +1,11 @@
+{"elapsed_seconds":0.3006004929993651,"learning_rate":0.001,"step":0,"train_accuracy":0.0,"train_loss":5.717970812401804,"validation_accuracy":0.0,"validation_loss":5.726408931882171}
+{"elapsed_seconds":39.59602015100245,"learning_rate":0.001,"step":800,"train_accuracy":99.82993197278911,"train_loss":0.080430720888433,"validation_accuracy":48.225292174190315,"validation_loss":1.5418265944966347}
+{"elapsed_seconds":49.20151355800044,"learning_rate":0.001,"step":1000,"train_accuracy":100.0,"train_loss":0.020877118064027256,"validation_accuracy":49.64930921305252,"validation_loss":1.4588841390913783}
+{"elapsed_seconds":87.56659134000074,"learning_rate":0.001,"step":1800,"train_accuracy":100.0,"train_loss":0.0314226976031957,"validation_accuracy":90.24442077215116,"validation_loss":0.25379902408176225}
+{"elapsed_seconds":97.19869855599973,"learning_rate":0.001,"step":2000,"train_accuracy":100.0,"train_loss":0.023822265620134314,"validation_accuracy":99.51115834218916,"validation_loss":0.07202782266388284}
+{"elapsed_seconds":102.11172762799833,"learning_rate":0.001,"step":2100,"train_accuracy":100.0,"train_loss":0.028131111759413668,"validation_accuracy":99.93623804463337,"validation_loss":0.05130527684193868}
+{"elapsed_seconds":107.17718532500294,"learning_rate":0.001,"step":2200,"train_accuracy":97.02380962761082,"train_loss":0.18966167040017187,"validation_accuracy":92.81615305788078,"validation_loss":0.24408722516707482}
+{"elapsed_seconds":112.23208466300275,"learning_rate":0.001,"step":2300,"train_accuracy":100.0,"train_loss":0.02196741708535321,"validation_accuracy":100.0,"validation_loss":0.030503104870206618}
+{"elapsed_seconds":142.11532288399758,"learning_rate":0.001,"step":2900,"train_accuracy":70.19557823129252,"train_loss":0.6526883212076563,"validation_accuracy":66.95005305226374,"validation_loss":0.6923277783723237}
+{"elapsed_seconds":226.5278656629962,"learning_rate":0.001,"step":4600,"train_accuracy":70.13180269513812,"train_loss":0.7299057642618815,"validation_accuracy":67.9914983508184,"validation_loss":0.7608811773858593}
+{"elapsed_seconds":317.73478658399836,"learning_rate":0.001,"step":6400,"train_accuracy":93.13350340136054,"train_loss":0.29695263910455766,"validation_accuracy":92.07226361427753,"validation_loss":0.31388451806037004}

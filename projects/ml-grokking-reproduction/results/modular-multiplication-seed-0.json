@@ -1,0 +1,45 @@
+{
+  "experiment": "modular_multiplication_mod_97",
+  "status": "accepted_and_stopped_early",
+  "model": {
+    "architecture": "decoder-only causal Transformer",
+    "layers": 2,
+    "width": 128,
+    "attention_heads": 4,
+    "feed_forward_width": 512,
+    "parameters": 455424,
+    "non_embedding_parameters": 394240,
+    "initialization": "random",
+    "seed": 0
+  },
+  "data": {
+    "ordered_pairs": 9409,
+    "train_examples": 4704,
+    "held_out_examples": 4705,
+    "train_fraction": 0.5,
+    "split_seed": 0,
+    "split_digest": "ab9e9ae9552eb41aedd37a7805d768269164fbe03ab5bb9e21e096dd3669a7a7"
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 1.0,
+    "betas": [0.9, 0.98],
+    "warmup_updates": 10,
+    "batch_size": 512
+  },
+  "accepted_checkpoint": {
+    "step": 2300,
+    "train_exact_accuracy": 100.0,
+    "held_out_exact_accuracy": 100.0,
+    "train_loss": 0.021967418491840363,
+    "held_out_loss": 0.030503101646900177,
+    "original_checkpoint_sha256": "ab4928fa6fdbb99ab557abf93304f2708e1b60f6c9ee3e1d6a75e12ef13add0a"
+  },
+  "execution": {
+    "device": "CPU",
+    "requested_budget": 100000,
+    "stopped_after_observed_step": 6400,
+    "reason": "The accepted 100% train and held-out result was sufficient for the bounded reproduction."
+  }
+}
