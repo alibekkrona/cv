@@ -1,0 +1,16 @@
+services:
+  demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:8090:8080"
+    restart: unless-stopped
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -m pytest -q
+    profiles:
+      - test

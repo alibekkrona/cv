@@ -5,6 +5,16 @@ projects used to support the CV.
 
 Available presentation projects:
 
+- [`ml-full-add-learning-demo/`](./ml-full-add-learning-demo/) - compact
+  398K-parameter Transformer for bounded ordinary decimal addition, packaged
+  with an inference-only checkpoint, private-state-safe browser playground,
+  Docker execution, 99.44% whole-trace sealed validation and a 100% independent
+  Cartesian carry-intersection stress audit.
+- [`ml-multifunction-learning-demo/`](./ml-multifunction-learning-demo/) -
+  inference-ready PyTorch demonstration of one 455K-parameter Transformer
+  performing two independently selectable modular functions, with a packaged
+  checkpoint, interactive web playground, Docker execution, and 99.9039%
+  joint exact accuracy on held-out examples.
 - [`ml-grokking-reproduction/`](./ml-grokking-reproduction/) - standalone
   PyTorch reproduction of OpenAI's modular-arithmetic grokking experiment,
   extended from addition to multiplication modulo 97 with a controlled

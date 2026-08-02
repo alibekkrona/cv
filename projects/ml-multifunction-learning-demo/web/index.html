@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ML Multi-Function Learning Demo</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b11;
+      --panel: #121722;
+      --panel-2: #181f2c;
+      --border: #2a3445;
+      --text: #f2f5f9;
+      --muted: #94a1b5;
+      --accent: #ff8a3d;
+      --success: #72dfad;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 65% 0%, rgba(255,138,61,.14), transparent 34rem),
+        var(--bg);
+    }
+    main { width: min(760px, 100%); }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 10px 0 12px;
+      max-width: 680px;
+      font-size: clamp(34px, 7vw, 64px);
+      line-height: 1;
+      letter-spacing: -.045em;
+    }
+    .lead {
+      max-width: 620px;
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .card {
+      padding: clamp(20px, 4vw, 32px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(18,23,34,.92);
+      box-shadow: 0 28px 80px rgba(0,0,0,.34);
+    }
+    .form {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr 1fr auto;
+      gap: 10px;
+    }
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    select, input, button {
+      min-height: 46px;
+      border-radius: 10px;
+      font: inherit;
+    }
+    select, input {
+      width: 100%;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--panel-2);
+    }
+    button {
+      align-self: end;
+      padding: 0 20px;
+      border: 0;
+      color: #160e09;
+      background: var(--accent);
+      font-weight: 850;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: wait; }
+    .result {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: var(--panel-2);
+    }
+    .metric span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .metric strong { color: var(--success); font-size: 30px; }
+    .meta {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .error {
+      display: none;
+      margin-top: 16px;
+      color: #ff9cab;
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 680px) {
+      body { padding: 20px; align-items: start; }
+      .form { grid-template-columns: 1fr 1fr; }
+      .task { grid-column: 1 / -1; }
+      button { width: 100%; }
+      footer { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">PyTorch · Shared Transformer · Direct inference</div>
+    <h1>Two functions.<br>One model.</h1>
+    <p class="lead">
+      Choose an operation and send two residues to the same trained network.
+      The model emits its learned intermediate state and final answer.
+    </p>
+
+    <section class="card">
+      <div class="form">
+        <label class="task">
+          Function
+          <select id="task">
+            <option value="square_polynomial">(x² + y) mod 97</option>
+            <option value="division">x / y mod 97</option>
+          </select>
+        </label>
+        <label>
+          x
+          <input id="x" type="number" min="0" max="96" step="1" value="14">
+        </label>
+        <label>
+          y
+          <input id="y" type="number" min="0" max="96" step="1" value="7">
+        </label>
+        <button id="run">Run model</button>
+      </div>
+
+      <div class="result" id="result">
+        <div class="metric">
+          <span>Intermediate state</span>
+          <strong id="intermediate">—</strong>
+        </div>
+        <div class="metric">
+          <span>Final result</span>
+          <strong id="answer">—</strong>
+        </div>
+        <div class="meta" id="meta"></div>
+      </div>
+      <div class="error" id="error"></div>
+    </section>
+
+    <footer>
+      <span>455,424 parameters · checkpoint 16,600</span>
+      <span>Greedy CPU inference · no external model</span>
+    </footer>
+  </main>
+
+  <script>
+    const task = document.getElementById('task');
+    const x = document.getElementById('x');
+    const y = document.getElementById('y');
+    const run = document.getElementById('run');
+    const result = document.getElementById('result');
+    const error = document.getElementById('error');
+
+    async function predict() {
+      run.disabled = true;
+      error.style.display = 'none';
+      try {
+        const response = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            task: task.value,
+            x: Number(x.value),
+            y: Number(y.value),
+          }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+        document.getElementById('intermediate').textContent = payload.intermediate;
+        document.getElementById('answer').textContent = payload.result;
+        document.getElementById('meta').textContent =
+          `Checkpoint ${payload.checkpoint_step.toLocaleString()} · ` +
+          `minimum token confidence ${(payload.confidence * 100).toFixed(2)}%`;
+        result.style.display = 'grid';
+      } catch (failure) {
+        result.style.display = 'none';
+        error.textContent = failure.message;
+        error.style.display = 'block';
+      } finally {
+        run.disabled = false;
+      }
+    }
+
+    task.addEventListener('change', () => {
+      if (task.value === 'division' && Number(y.value) === 0) y.value = 1;
+    });
+    run.addEventListener('click', predict);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Enter') predict();
+    });
+  </script>
+</body>
+</html>
